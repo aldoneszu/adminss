@@ -159,10 +159,11 @@
           <p><strong>الباقة:</strong> ${val.pack || "-"}</p>
           <p><strong>الوقت:</strong> ${val.time || "-"}</p>
           ${
-            val.img 
-            ? `<p><strong>الصورة:</strong></p><img src="${val.img}" alt="صورة الطلب" />`
-            : ''
+  val.paymentScreenshot 
+    ? `<p><strong>الصورة:</strong></p><img src="${val.paymentScreenshot}" alt="صورة الطلب" />`
+    : ''
           }
+          
           ${
             val.confirmed
               ? '<p class="confirmed">تم تأكيد الطلب</p>'
